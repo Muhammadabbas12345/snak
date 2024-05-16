@@ -5,15 +5,20 @@ const controls = document.querySelectorAll(".controls i");
 const playButton = document.querySelector(".play-button");
 const snakeImage = document.querySelector(".snake-image");
 const wrapper = document.querySelector(".wrapper");
-const gameDetails = document.querySelector(".game-details");
-
+const buttonContainers = document.querySelector(".button-container");
+const image = document.querySelector(".image");
 const startGameButton = document.getElementById("start-game-button");
-const settingsButton = document.getElementById("settings-button");
+const leaderButton = document.getElementById("leader-button");
 const cancelButton = document.getElementById("cancel-button");
 const popupModal = document.getElementById("popup-modal");
-const settingsSection = document.getElementById("settings-section");
-const applySpeedButton = document.getElementById("apply-speed");
-const speedRange = document.getElementById("speed-range");
+const leaderboardSection = document.getElementById("leaderboard-section");
+const leaderboardTable = document.getElementById("leaderboard-table");
+const leaderboardBody = document.getElementById("leaderboard-body");
+const playerNameGameOver = document.getElementById("player-name-game-over");
+const saveScoreButton = document.getElementById("save-score-game-over");
+const gameOverScore = document.getElementById("game-over-score");
+const gameOverModal = document.getElementById("game-over-modal");
+const backButton = document.getElementById("back-button");
 
 let gameOver = false;
 let foodX, foodY;
@@ -23,28 +28,52 @@ let velocityX = 0, velocityY = 0;
 let setIntervalId;
 let score = 0;
 let highScore = localStorage.getItem("high-score") || 0;
+let highScoreHistory = JSON.parse(localStorage.getItem("high-score-history")) || [];
 
 highScoreElement.innerText = `High Score: ${highScore}`;
 
-const showSettings = () => {
-    settingsSection.style.display = "block";
+const showLeaderboard = () => {
+    buttonContainers.style.display = "none";
+    image.style.display = "none";
+    leaderboardSection.style.display = "block";
+    leaderboardTable.style.display="block";
+    displayLeaderboard();
 }
 
-const hideSettings = () => {
-    settingsSection.style.display = "none";
+const hideLeaderboard = () => {
+    leaderboardSection.style.display = "none";
+    buttonContainers.style.display = "block";
+    image.style.display = "block";
 }
 
 const playGame = () => {
-    wrapper.style.display = "block"; // Display the wrapper
-    hidePopup(); // Hide the popup modal
+    wrapper.style.display = "block"; 
+    snakeImage.style.display = "none";
+    popupModal.style.display = "none";
     initializeGame();
 }
 
 const hidePopup = () => {
     popupModal.style.display = "none";
-    snakeImage.style.display = "none"; // Show the snake image
-    playButton.style.display = "block"; // Show the play button
-    wrapper.style.display = "block";
+    snakeImage.style.display = "block"; 
+    playButton.style.display = "block"; 
+    wrapper.style.display = "none";
+}
+
+const saveHighScore = (name) => {
+    highScoreHistory.push({ name, score });
+    localStorage.setItem("high-score-history", JSON.stringify(highScoreHistory));
+}
+
+const displayLeaderboard = () => {
+    highScoreHistory.sort((a, b) => b.score - a.score);
+    
+    leaderboardBody.innerHTML = "";
+    highScoreHistory.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${index + 1}</td><td>${item.name}</td><td>${item.score}</td>`;
+        leaderboardBody.appendChild(row);
+    });
 }
 
 const changeFoodPosition = () => {
@@ -54,8 +83,7 @@ const changeFoodPosition = () => {
 
 const handleGameOver = () => {
     clearInterval(setIntervalId);
-    alert("Game Over! Press Ok to replay... ");
-    location.reload();
+    showGameOverPopup();
 }
 
 const changeDirection = (e) => {
@@ -80,7 +108,7 @@ controls.forEach(key => {
 
 const initGame = () => {
     if (gameOver) return handleGameOver();
-    let htmlMarkup = ` <div class="food" style="grid-area: ${foodY} / ${foodX}"></div>`;
+    let htmlMarkup = `<div class="food" style="grid-area: ${foodY} / ${foodX};"></div>`;
 
     if (snakeX === foodX && snakeY === foodY) {
         changeFoodPosition();
@@ -106,9 +134,17 @@ const initGame = () => {
     }
 
     for (let i = 0; i < snakeBody.length; i++) {
-        htmlMarkup += `<div class="head" style="grid-area: ${snakeBody[i][1]} / ${snakeBody[i][0]}"></div>`;
+        if (i === 0) {
+            htmlMarkup += `<div class="head" style="grid-area: ${snakeBody[i][1]} / ${snakeBody[i][0]}; ">
+                          
+                           </div>`;
+        } else {
+            htmlMarkup += `<div class="head" style="grid-area: ${snakeBody[i][1]} / ${snakeBody[i][0]};"></div>`;
+        }
+
         if (i !== 0 && snakeBody[0][1] === snakeBody[i][1] && snakeBody[0][0] === snakeBody[i][0]) {
             gameOver = true;
+            showGameOverPopup(); 
         }        
     }
 
@@ -119,6 +155,30 @@ const startGame = () => {
     snakeImage.style.display = "none";
     playButton.style.display = "none";
     popupModal.style.display = "block";
+}
+
+const showGameOverPopup = () => {
+    gameOverScore.innerText = `Your Score: ${score}`;
+    gameOverModal.style.display = "block";
+    wrapper.style.display = "none";
+}
+
+const hideGameOverPopup = () => {
+    gameOverModal.style.display = "none";
+}
+
+const submitGameOverScore = () => {
+    const playerName = playerNameGameOver.value.trim();
+    if (playerName === "") {
+        alert("Please enter your name.");
+        return;
+    }
+    saveHighScore(playerName);
+    hideGameOverPopup();
+    initializeGame();
+    snakeImage.style.display = "block"; 
+    playButton.style.display = "block"; 
+    wrapper.style.display = "none";
 }
 
 const initializeGame = () => {
@@ -139,6 +199,7 @@ const initializeGame = () => {
 
 playButton.addEventListener("click", startGame);
 startGameButton.addEventListener("click", playGame);
-settingsButton.addEventListener("click", showSettings);
+leaderButton.addEventListener("click", showLeaderboard);
 cancelButton.addEventListener("click", hidePopup);
-applySpeedButton.addEventListener("click", hideSettings);
+backButton.addEventListener("click", hideLeaderboard);
+saveScoreButton.addEventListener("click", submitGameOverScore);

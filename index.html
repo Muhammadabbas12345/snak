@@ -8,18 +8,16 @@
     <title>Snake Game</title>
 </head>
 <body>
-
     <div class="snake-image">
         <img src="./cta_alt.png" alt="Snake Image">
         <div class="buttons">
             <button class="play-button">Play</button>
         </div>
     </div>
-
     <div class="wrapper" style="display: none;">
         <div class="game-details">
             <span class="score">Score: 0</span>
-            <span class="high-score">High Score: 30</span>
+            <span class="high-score">High Score: 0</span>
         </div>
         <div class="play-board"></div>
         <div class="controls">
@@ -29,27 +27,43 @@
             <i data-key="ArrowDown" class="fa-solid fa-arrow-down-long"></i>
         </div>
     </div>
-
     <!-- Popup Modal -->
     <div id="popup-modal" class="popup-modal" style="display: none;">
         <div class="modal-content">
-           <div class="image">
-            <img src="./download.png" alt="Snake Image">
-           </div>
+            <div class="image">
+                <img src="./download.png" alt="Snake Image">
+            </div>
             <div class="button-container">
-                <button class="popup-button" id="start-game-button">Start Game</button> 
-                <button style="background-color: rgba(50, 235, 4, 0.822);" class="popup-button" id="settings-button">Settings</button>
+                <button class="popup-button" id="start-game-button">Start Game</button>
+                <button style="background-color: rgba(50, 235, 4, 0.822);" id="leader-button">Leaderboard</button>
                 <button style="background-color: rgb(245, 73, 73);" class="popup-button" id="cancel-button">Cancel</button>
             </div>
-            <!-- Settings Section (Initially hidden) -->
-            <div id="settings-section" style="display: none;">
-                <label for="speed-range">Adjust Speed:</label>
-                <input type="range" id="speed-range" min="1" max="10" value="5">
-                <button id="apply-speed">Apply</button>
+            <!-- Leaderboard Section (Initially hidden) -->
+            <div id="leaderboard-section" style="display: none;">
+                <h2>New leaderboard</h2>
+                <table id="leaderboard-table" style="display: none; ">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th style="width: 100%;">Name</th>
+                            <th >Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+                <button id="back-button">Close</button>
             </div>
         </div>
     </div>
-
+    <!-- Game Over Popup Modal -->
+    <div id="game-over-modal" class="popup-modal" style="display: none;">
+        <div class="modal-contents">
+            <h2>Game Over</h2>
+            <p id="game-over-score">Your Score: 0</p>
+            <input type="text" id="player-name-game-over" placeholder="Enter your name">
+            <button id="save-score-game-over">Save</button>
+        </div>
+    </div>
     <script src="./app.js" defer></script>
 </body>
 </html>
